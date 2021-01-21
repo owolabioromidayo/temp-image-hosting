@@ -1,2 +1,5 @@
+*.swo
+*.swp
 node_modules
 todo
+public/uploads

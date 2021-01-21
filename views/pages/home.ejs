@@ -1,0 +1,72 @@
+<html>
+<head>
+	<style>
+		.droparea {
+		    width: 350px;
+		    height: 300px;
+		    border-style: solid;
+		    border-width: 3px;
+		    border-color: red;
+		    line-height: 200px;
+		    margin: auto;
+		    text-align: center;
+		}
+	</style>
+	
+</head>
+<body>
+	 <!-- <<div class="container">
+		<div class="droparea" ondrop="drop(event)"ondragover="allowDrop(event)">Drop Here</div>
+	</div> --> 
+
+	<div>	
+		<form enctype="multipart/form-data" action="/" method="post">
+			
+		<table>
+			<tr>
+				<td>
+				<label for="file"><h2><strong>Choose a file</strong> or drag it here.</h2></label> <br/>
+				<input  class="droparea" type="file" name="userPhoto" /> <br />
+				</td>
+			</tr>
+			<tr>
+				<td>
+				<p><button type="submit">Upload </button></p>
+				</td>
+			</tr>
+		</table>
+		</form>
+	</div>
+	<script>
+		function allowDrop(ev) {
+		    ev.preventDefault();
+		}
+	</script>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+	<script>
+		function allowDrop(e) {
+		    e.preventDefault();
+		}
+		function drop(e) {
+		    e.preventDefault();
+		    var data = e.dataTransfer.files;
+		    console.log(data)
+		    var formData = new FormData();
+		    formData.append("userPhoto", data[0]);
+
+		    var req = {
+			url: "/",
+			method: 'POST',
+			processData: false,
+			contentType: false,
+			body: formData,
+			success: function(data){
+			 alert(data)}
+		    };
+
+		    $.ajax(req);
+		}
+	</script>
+</body>
+
+<%- include ('../template/footer') -%>
