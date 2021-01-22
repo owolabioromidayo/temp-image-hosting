@@ -5,7 +5,9 @@ const path = require('path')
 const config = require('./utils/config')
 const multer = require('multer')
 const helpers = require('./utils/helpers')
-
+const cron = require('node-cron')
+const {v4: uuidv4} = require('uuid')
+const fs = require('fs')
 
 var storage = multer.diskStorage({
     destination: function(req, file, cb) {
@@ -13,7 +15,7 @@ var storage = multer.diskStorage({
     },
 
     filename: function(req, file, cb) {
-	const _filename =  file.fieldname + '-' + Date.now() + '.png'
+	const _filename =  uuidv4() + '.png'
 	console.log(_filename)
         cb(null, _filename);
 	
@@ -36,6 +38,20 @@ app.use(express.static('public'))
 const baseUrl = `http://localhost:${config.PORT}`
 
 
+cron.schedule('12 *', () => {
+	const directory = __dirname + '/public/uploads' 
+	fs.readdir(directory, (err,files) => {
+		if (err) throw err
+
+		for (const file of files){
+			fs.unlink(path.join(directory, file), err => {
+				if (err) throw err
+			})	
+		}
+	})
+
+	console.log('uploads directory cleared')
+})
 
 
 app.get('/imgs/:id', (req,res) => {
@@ -48,7 +64,13 @@ app.get('/', (req,res) => {
 })
 
 app.post('/', upload.single('userPhoto'), (req, res) => {
-	console.log(req.file)
+	console.log(`${req.file.filename} has been added`)
+	cron.schedule('* * * *', () => {
+		fs.unlink(__dirname + '/public/uploads/' +req.file.filename, err => {
+			if (err) throw err
+		})
+		console.log(req.file.filename +' deleted')
+	})
 	res.redirect(`/imgs/${req.file.filename.slice(0,-4)}`)
 });
 
